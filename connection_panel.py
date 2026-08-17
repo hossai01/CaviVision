@@ -1,7 +1,8 @@
-from PySide6.QtWidgets import QPushButton,QWidget,QHBoxLayout
+from PySide6.QtWidgets import QPushButton,QWidget,QHBoxLayout 
 from PySide6.QtWidgets import QVBoxLayout,QGroupBox,QGridLayout,QLabel,QComboBox
 from serial_manager import SerialManager
-
+from PySide6.QtCore import QThread
+from serial_worker import SerialWorker
 class ConnectionPanel(QWidget):
     def __init__(self):
         super().__init__()
@@ -35,16 +36,31 @@ class ConnectionPanel(QWidget):
         self.disconnect_button.clicked.connect(self.device_disconnect)
         #create SerialManager object
         self.serial_manager=SerialManager()
+       
+        
          
     def device_connect(self):
         port=self.port_combo.currentText()
         baud_rate=self.baud_rate_combo.currentText()
         success = self.serial_manager.serial_connect(port, baud_rate)
+        
         if success:
+             #creat QThread and move SerialWoker into this Thread
+            self.thread= QThread()
+            self.worker=SerialWorker(self.serial_manager.serial)
+            self.worker.moveToThread(self.thread)
+            self.thread.started.connect(self.worker.data_read)
+            self.thread.start()
+
             self.connect_button.setEnabled(False)
             self.disconnect_button.setEnabled(True)
             self.status_result.setText("Connected")
+            
+                    
     def device_disconnect(self):
+        self.worker.stop()
+        self.thread.quit()
+        self.thread.wait()
         success = self.serial_manager.serial_disconnect()
         if success:
             self.connect_button.setEnabled(True)
