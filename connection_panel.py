@@ -48,6 +48,7 @@ class ConnectionPanel(QWidget):
              #creat QThread and move SerialWoker into this Thread
             self.thread= QThread()
             self.worker=SerialWorker(self.serial_manager.serial)
+            self.worker.data_received.connect(self.update_data)
             self.worker.moveToThread(self.thread)
             self.thread.started.connect(self.worker.data_read)
             self.thread.start()
@@ -66,4 +67,7 @@ class ConnectionPanel(QWidget):
             self.connect_button.setEnabled(True)
             self.disconnect_button.setEnabled(False)
             self.status_result.setText("Disconnected")
+
+    def update_data(self,measurements):
+        print(measurements)
        
