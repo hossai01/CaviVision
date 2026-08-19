@@ -9,7 +9,9 @@ class SerialManager():
         self.port=port
         self.baud_rate=int(baud_rate)
         try:
-            self.serial=serial.Serial(port=self.port,baudrate=self.baud_rate,timeout=0.2) #creats a Serial object
+            self.serial=serial.Serial(port=self.port,baudrate=self.baud_rate,timeout=0.2) #creats a Serial object. 
+            #timeout=0.2 sec means the readline() waits at most 0.2 sec before it returns a data. if no data is availble within
+            #this time it returns b'' which is considered as False in python
             print("Connected to:", self.port)
             print("Baud rate:", self.baud_rate)
             return True
